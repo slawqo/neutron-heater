@@ -3,3 +3,8 @@
 # process, which may cause wedges in the gate later.
 
 pbr>=2.0 # Apache-2.0
+netaddr
+os-vif
+openstacksdk
+oslo_log
+oslo_utils
