@@ -25,11 +25,6 @@ LOG = logging.getLogger(__name__)
 
 NAME = "Neutron heater"
 
-NUM_NETWORKS = 1
-NUM_IPv4_SUBNETS_PER_NETWORK = 1
-NUM_IPv6_SUBNETS_PER_NETWORK = 1
-NUM_PORTS_PER_NETWORK = 2
-
 # TODO(slaweq): this should be more smart and based on the number of ports per
 # network maybe
 V4_CIDR_BASE = "192.168.%s.0/24"
@@ -55,6 +50,34 @@ def register_config_options(conf):
                         'create resources in neutron and on the nodes or '
                         '"clean" to clean all resources made earlier by this '
                         'tool.'),
+        cfg.IntOpt('networks',
+                   default=10,
+                   help='Number of networks to be created in Neutron'),
+        cfg.IntOpt('ipv4_subnets',
+                   default=1,
+                   help='Number of IPv4 subnets to be created in Neutron for '
+                        'each created network. It only has effect with '
+                        '"create" action.'),
+        cfg.IntOpt('ipv6_subnets',
+                   default=1,
+                   help='Number of IPv6 subnets to be created in Neutron for '
+                        'each created network. It only has effect with '
+                        '"create" action.'),
+        cfg.IntOpt('ports',
+                   default=10,
+                   help='Number of ports to be created in Neutron for '
+                        'each created network. Those ports will be bound '
+                        'and provisioned on all nodes with the L2 agents '
+                        'running. It only has effect with "create" action.'),
+        cfg.StrOpt('cloud-name',
+                   default='devstack-admin',
+                   dest='cloud_name',
+                   help="Cloud's name to be used. It has to be defined in "
+                        "the clouds.yaml file."),
+        cfg.StrOpt('region-name',
+                   default='RegionOne',
+                   dest='region_name',
+                   help="Cloud's region name."),
     ]
     conf.register_cli_opts(options)
 
@@ -63,29 +86,30 @@ def register_logging_config(conf):
     logging.register_options(conf)
     logging.setup(conf, NAME)
 
+
 def get_network_name(index, hostname):
     return "network-%s-host-%s" % (index, hostname)
 
 
-def create_network_with_ports():
+def create_network_with_ports(config):
     hostname = socket.gethostname()
-    client = openstack_client.OSClient(cloud="devstack-admin",
-                                       region_name="RegionOne")
+    client = openstack_client.OSClient(cloud=config.cloud_name,
+                                       region_name=config.region_name)
     os_vif = os_vif_client.OSVifClient()
 
-    for net in range(NUM_NETWORKS):
+    for net in range(config.networks):
         network = client.create_network(get_network_name(net, hostname))
         if not network:
             sys.exit(NET_CREATE_FAIL)
         subnets = {}
-        for v4_subnet in range(NUM_IPv4_SUBNETS_PER_NETWORK):
+        for v4_subnet in range(config.ipv4_subnets):
             subnet_name = "v4_subnet-%s-host-%s" % (v4_subnet, hostname)
             cidr = V4_CIDR_BASE % v4_subnet
             subnet = client.create_subnet(network['id'], subnet_name, cidr)
             if subnet:
                 subnets[subnet['id']] = subnet
 
-        for v6_subnet in range(NUM_IPv6_SUBNETS_PER_NETWORK):
+        for v6_subnet in range(config.ipv6_subnets):
             subnet_name = "v6_subnet-%s-host-%s" % (v6_subnet, hostname)
             cidr = V6_CIDR_BASE % v4_subnet
             subnet = client.create_subnet(network['id'], subnet_name, cidr)
@@ -94,20 +118,20 @@ def create_network_with_ports():
 
         if subnets:
             # Only if some subnets were created creating ports makes any sense
-            for port in range(NUM_PORTS_PER_NETWORK):
+            for port in range(config.ports):
                 port_name = "port-%s-host-%s" % (port, hostname)
                 port = client.create_port(network['id'], port_name, hostname)
                 if port:
                     os_vif.plug_port(port, subnets)
 
-def clean_all():
+def clean_all(config):
     hostname = socket.gethostname()
-    client = openstack_client.OSClient(cloud="devstack-admin",
-                                       region_name="RegionOne")
+    client = openstack_client.OSClient(cloud=config.cloud_name,
+                                       region_name=config.region_name)
     os_vif = os_vif_client.OSVifClient()
     all_networks = client.get_networks()
     expected_network_names = [get_network_name(net, hostname) for
-                              net in range(NUM_NETWORKS)]
+                              net in range(config.networks)]
     for network in all_networks:
         if network['name'] not in expected_network_names:
             continue
@@ -119,21 +143,18 @@ def clean_all():
         client.delete_network(network)
 
 
-
 def main(argv=sys.argv[1:]):
-    # TODO(slaweq): add config options to specify cloud name and region name
-    # properly
     config = cfg.CONF
     register_config_options(config)
     register_logging_config(config)
-    config(sys.argv[1:])
+    config(argv)
     if config.action == CREATE:
         LOG.info("Starting resource creation")
-        create_network_with_ports()
+        create_network_with_ports(config)
         LOG.info("Resources created")
     elif config.action == CLEAN:
         LOG.info("Starting resource cleanup")
-        clean_all()
+        clean_all(config)
         LOG.info("Resources cleaned")
     else:
         config.print_help()
