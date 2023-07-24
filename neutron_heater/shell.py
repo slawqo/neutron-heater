@@ -106,17 +106,17 @@ def clean_all():
                                        region_name="RegionOne")
     os_vif = os_vif_client.OSVifClient()
     all_networks = client.get_networks()
-    for net in range(NUM_NETWORKS):
-        expected_network_name = get_network_name(net, hostname)
-        for network in all_networks:
-            if network['name'] != expected_network_name:
-                continue
-            ports = client.get_ports(network['id'])
-            for port in ports:
-                subnets = client.get_port_subnets(port)
-                os_vif.unplug_port(port, subnets)
-                client.delete_port(port)
-            client.delete_network(network)
+    expected_network_names = [get_network_name(net, hostname) for
+                              net in range(NUM_NETWORKS)]
+    for network in all_networks:
+        if network['name'] not in expected_network_names:
+            continue
+        ports = client.get_ports(network['id'])
+        for port in ports:
+            subnets = client.get_port_subnets(port)
+            os_vif.unplug_port(port, subnets)
+            client.delete_port(port)
+        client.delete_network(network)
 
 
 
