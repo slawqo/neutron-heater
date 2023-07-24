@@ -40,6 +40,15 @@ class OSVifClient(object):
             LOG.error('Failed to plug port %s on the host. Error: %s',
                       port['name'], err)
 
+    def unplug_port(self, port, subnets):
+        instance_info = self._get_instance_info(port)
+        os_vif_object = self._get_vif_object(port, subnets)
+        try:
+            os_vif.unplug(os_vif_object, instance_info)
+        except vif_exc.PlugException as err:
+            LOG.error('Failed to unplug port %s on the host. Error: %s',
+                      port['name'], err)
+
     def _get_instance_info(self, port):
         return instance_info.InstanceInfo(
             uuid=uuidutils.generate_uuid(),

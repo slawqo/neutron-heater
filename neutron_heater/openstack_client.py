@@ -39,6 +39,20 @@ class OSClient(object):
         except Exception as e:
             LOG.warning("Network %s creation failed. Error: %s", name, e)
 
+    def get_networks(self):
+        try:
+            return self.os_conn.network.networks()
+        except Exception as e:
+            LOG.warning("Failed to get networks from neutron server. "
+                        "Error: %s", e)
+
+    def delete_network(self, network):
+        try:
+            return self.os_conn.network.delete_network(network)
+        except Exception as e:
+            LOG.warning("Failed to delete network %s. "
+                        "Error: %s", network['id'], e)
+
     def create_subnet(self, network_id, name, cidr):
         ip_version = netaddr.IPNetwork(cidr).version
         try:
@@ -64,4 +78,35 @@ class OSClient(object):
             LOG.warning("Port %s creation in network %s failed. "
                         "Error: %s", name, network_id, e)
 
+    def get_ports(self, network_id=None):
+        filters = {}
+        if network_id:
+            filters['network_id'] = network_id
+        try:
+            return self.os_conn.network.ports(**filters)
+        except Exception as e:
+            err_msg = "Failed to get ports from neutron server. "
+            if network_id:
+                err_msg += "Network: %s. " % network_id
+            err_msg += "Error: %s" % e
+            LOG.error(err_msg)
+
+    def delete_port(self, port):
+        try:
+            return self.os_conn.network.delete_port(port)
+        except Exception as e:
+            LOG.warning("Failed to delete port %s. "
+                        "Error: %s", port['id'], e)
+
+    def get_port_subnets(self, port):
+        subnets = {}
+        for fixed_ip in port['fixed_ips']:
+            try:
+                subnet = self.os_conn.network.get_subnet(fixed_ip['subnet_id'])
+            except Exception as e:
+                LOG.warning("Failed to get subnet %s. Error: %s",
+                            fixed_ip['subnet_id'], e)
+                continue
+            subnets[subnet['id']] = subnet
+        return subnets
 
