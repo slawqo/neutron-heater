@@ -53,11 +53,11 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'neutron_heater Release Notes'
-copyright = '2022, OpenStack Developers'
+copyright = '2023, Slawek Kaplonski'
 
 # openstackdocstheme options
 openstackdocs_repo_name = 'x/neutron-heater'
-openstackdocs_bug_project = 'replace with the name of the project on Launchpad or the ID from Storyboard'
+openstackdocs_bug_project = ''
 openstackdocs_bug_tag = ''
 openstackdocs_auto_name = 'False'
 
