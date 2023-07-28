@@ -33,6 +33,17 @@ class OSClient(object):
                                               region_name=self.region_name)
         return self._os_conn
 
+    def get_agents(self, binary_name=None):
+        try:
+            agents = list(self.os_conn.network.agents())
+        except Exception as e:
+            LOG.error("Failed to get list of Neutron agents. Error: %s", e)
+            return
+        if binary_name:
+            return [agent for agent in agents
+                    if agent.get("binary") == binary_name]
+        return agents
+
     def create_network(self, name):
         try:
             return self.os_conn.network.create_network(name=name)

@@ -13,6 +13,7 @@
 from concurrent import futures
 import socket
 import sys
+import yaml
 
 from oslo_log import log as logging
 
@@ -102,6 +103,44 @@ def clean_all(config):
             network in networks_to_clean]
 
 
+def write_inventory_file(hosts, filename):
+    if filename.endswith(".yaml") or filename.endswith("yml"):
+        write_yaml_file(hosts, filename)
+    else:
+        write_ini_file(hosts, filename)
+
+
+def write_yaml_file(hosts, filename):
+    content = {"all": {"hosts": {}}}
+    for host in hosts:
+        content["all"]["hosts"][host] = None
+
+    yaml.SafeDumper.add_representer(
+        type(None),
+        lambda dumper, value: dumper.represent_scalar(
+            'tag:yaml.org,2002:null', '')
+    )
+    with open(filename, 'w',) as f:
+        yaml.safe_dump(content, f, default_flow_style=False)
+
+
+def write_ini_file(hosts, filename):
+    with open(filename, "w") as f:
+        f.writelines(hosts)
+
+
+def discover_hosts(config):
+    client = openstack_client.OSClient(cloud=config.cloud_name,
+                                       region_name=config.region_name)
+    agents = client.get_agents(config.l2_agent_name)
+    if not agents:
+        sys.exit(constants.NO_AGENTS_FOUND)
+    hosts = []
+    for agent in agents:
+        hosts.append(agent.host)
+    write_inventory_file(hosts, config.inventory_file_name)
+
+
 def main(argv=sys.argv[1:]):
     config = conf.get_config(argv)
     if config.action == constants.CREATE:
@@ -112,6 +151,10 @@ def main(argv=sys.argv[1:]):
         LOG.info("Starting resource cleanup")
         clean_all(config)
         LOG.info("Resources cleaned")
+    elif config.action == constants.DISCOVER_HOSTS:
+        LOG.info("Starting discovering hosts for inventory file")
+        discover_hosts(config)
+        LOG.info("Inventory file ready.")
     else:
         config.print_help()
         sys.exit(constants.INVALID_CONFIG_OPTION)

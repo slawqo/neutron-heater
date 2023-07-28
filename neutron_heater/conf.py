@@ -19,12 +19,15 @@ from neutron_heater import constants
 def register_config_options(conf):
     options = [
         cfg.StrOpt('action',
-                   choices=[constants.CREATE, constants.CLEAN],
+                   choices=[constants.CREATE, constants.CLEAN,
+                            constants.DISCOVER_HOSTS],
                    positional=True,
                    help='Action to do. Possible options are "create" to '
-                        'create resources in neutron and on the nodes or '
+                        'create resources in neutron and on the nodes, '
                         '"clean" to clean all resources made earlier by this '
-                        'tool.'),
+                        'tool or "discover" to discover all hosts with L2 '
+                        'agent installed and prepare inventory file for '
+                        'ansible to run there.'),
         cfg.IntOpt('networks',
                    default=10,
                    help='Number of networks to be created in Neutron'),
@@ -62,6 +65,14 @@ def register_config_options(conf):
                         'Default value is "0" which means it will be '
                         'calculated automatically based on the "networks" '
                         'value.'),
+        cfg.StrOpt('l2_agent_name',
+                   default='ovn-controller',
+                   help="Name of the L2 agent's binary. It's used only with "
+                        "the 'discover' action."),
+        cfg.StrOpt('inventory_file_name',
+                   default='hosts',
+                   help="Name of the file where ansible inventory will be "
+                        "stored."),
     ]
     conf.register_cli_opts(options)
 

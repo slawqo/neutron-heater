@@ -15,6 +15,7 @@ NAME = "Neutron heater"
 # ACTIONS POSSIBLE TO DO
 CREATE = 'create'
 CLEAN = 'clean'
+DISCOVER_HOSTS = "discover"
 
 # TODO(slaweq): this should be more smart and based on the number of ports per
 # network maybe
@@ -23,3 +24,4 @@ V6_CIDR_BASE = "2000:%s::/64"
 
 # ERROR_EXIT_CODES
 INVALID_CONFIG_OPTION = 1
+NO_AGENTS_FOUND = 10
