@@ -109,4 +109,3 @@ class OSClient(object):
                 continue
             subnets[subnet['id']] = subnet
         return subnets
-

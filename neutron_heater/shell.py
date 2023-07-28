@@ -11,7 +11,6 @@
 #    under the License.
 
 from concurrent import futures
-import os
 import socket
 import sys
 

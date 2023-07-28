@@ -56,7 +56,6 @@ class OSVifClient(object):
             project_id=port['project_id'])
 
     def _get_subnet_objects(self, port, subnets):
-        cidrs = []
         os_vif_subnets = []
         for fixed_ip in port['fixed_ips']:
             subnet = subnets.get(fixed_ip['subnet_id'])
@@ -94,4 +93,3 @@ class OSVifClient(object):
 
     def _get_bridge_name(self, port):
         return (BR_DEVICE_PREFIX + port['id'])[:LINUX_DEV_LEN]
-
