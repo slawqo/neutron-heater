@@ -14,86 +14,15 @@ from concurrent import futures
 import socket
 import sys
 
-from oslo_config import cfg
 from oslo_log import log as logging
 
+from neutron_heater import conf
+from neutron_heater import constants
 from neutron_heater import openstack_client
 from neutron_heater import os_vif_client
 
 
 LOG = logging.getLogger(__name__)
-
-NAME = "Neutron heater"
-
-# TODO(slaweq): this should be more smart and based on the number of ports per
-# network maybe
-V4_CIDR_BASE = "192.168.%s.0/24"
-V6_CIDR_BASE = "2000:%s::/64"
-
-# ERROR_EXIT_CODES
-NET_CREATE_FAIL = 1
-SUBNET_CREATE_FAIL = 2
-PORT_CREATE_FAIL = 3
-INVALID_CONFIG_OPTION = 10
-
-# ACTIONS POSSIBLE TO DO
-CREATE = 'create'
-CLEAN = 'clean'
-
-
-def register_config_options(conf):
-    options = [
-        cfg.StrOpt('action',
-                   choices=[CREATE, CLEAN],
-                   positional=True,
-                   help='Action to do. Possible options are "create" to '
-                        'create resources in neutron and on the nodes or '
-                        '"clean" to clean all resources made earlier by this '
-                        'tool.'),
-        cfg.IntOpt('networks',
-                   default=10,
-                   help='Number of networks to be created in Neutron'),
-        cfg.IntOpt('ipv4_subnets',
-                   default=1,
-                   help='Number of IPv4 subnets to be created in Neutron for '
-                        'each created network. It only has effect with '
-                        '"create" action.'),
-        cfg.IntOpt('ipv6_subnets',
-                   default=1,
-                   help='Number of IPv6 subnets to be created in Neutron for '
-                        'each created network. It only has effect with '
-                        '"create" action.'),
-        cfg.IntOpt('ports',
-                   default=10,
-                   help='Number of ports to be created in Neutron for '
-                        'each created network. Those ports will be bound '
-                        'and provisioned on all nodes with the L2 agents '
-                        'running. It only has effect with "create" action.'),
-        cfg.StrOpt('cloud-name',
-                   default='devstack-admin',
-                   dest='cloud_name',
-                   help="Cloud's name to be used. It has to be defined in "
-                        "the clouds.yaml file."),
-        cfg.StrOpt('region-name',
-                   default='RegionOne',
-                   dest='region_name',
-                   help="Cloud's region name."),
-        cfg.IntOpt('concurrency',
-                   default=0,
-                   help='Number of threads in which networks and resources '
-                        'which belongs to network will be created. '
-                        'Each thread will create one network and all subnets '
-                        'and ports which should be created per network. '
-                        'Default value is "0" which means it will be '
-                        'calculated automatically based on the "networks" '
-                        'value.'),
-    ]
-    conf.register_cli_opts(options)
-
-
-def register_logging_config(conf):
-    logging.register_options(conf)
-    logging.setup(conf, NAME)
 
 
 def get_network_name(index, hostname):
@@ -111,14 +40,14 @@ def create_network_with_ports(net_number, ipv4_subnets, ipv6_subnets, ports,
     subnets = {}
     for v4_subnet in range(ipv4_subnets):
         subnet_name = "v4_subnet-%s-host-%s" % (v4_subnet, hostname)
-        cidr = V4_CIDR_BASE % v4_subnet
+        cidr = constants.V4_CIDR_BASE % v4_subnet
         subnet = os_client.create_subnet(network['id'], subnet_name, cidr)
         if subnet:
             subnets[subnet['id']] = subnet
 
     for v6_subnet in range(ipv6_subnets):
         subnet_name = "v6_subnet-%s-host-%s" % (v6_subnet, hostname)
-        cidr = V6_CIDR_BASE % v4_subnet
+        cidr = constants.V6_CIDR_BASE % v4_subnet
         subnet = os_client.create_subnet(network['id'], subnet_name, cidr)
         if subnet:
             subnets[subnet['id']] = subnet
@@ -174,21 +103,18 @@ def clean_all(config):
 
 
 def main(argv=sys.argv[1:]):
-    config = cfg.CONF
-    register_config_options(config)
-    register_logging_config(config)
-    config(argv)
-    if config.action == CREATE:
+    config = conf.get_config(argv)
+    if config.action == constants.CREATE:
         LOG.info("Starting resource creation")
         create_resources(config)
         LOG.info("Resources created")
-    elif config.action == CLEAN:
+    elif config.action == constants.CLEAN:
         LOG.info("Starting resource cleanup")
         clean_all(config)
         LOG.info("Resources cleaned")
     else:
         config.print_help()
-        sys.exit(INVALID_CONFIG_OPTION)
+        sys.exit(constants.INVALID_CONFIG_OPTION)
 
 
 if __name__ == "__main__":
