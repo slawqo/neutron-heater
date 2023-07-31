@@ -1,0 +1,10 @@
+---
+# defaults file for heater_run
+neutron_heater_venv_path: "/opt/stack/neutron-heater/.venv"
+neutron_heater_cloud_name: "devstack-admin"
+neutron_heater_region_name: "RegionOne"
+neutron_heater_concurrency: 0
+neutron_heater_networks: 10
+neutron_heater_ports: 25
+neutron_heater_ipv4_subnets: 1
+neutron_heater_ipv6_subnets: 1

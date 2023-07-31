@@ -1,0 +1,4 @@
+- hosts: all
+  roles:
+    - heater_install
+    - heater_run
