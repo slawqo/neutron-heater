@@ -30,7 +30,8 @@ def register_config_options(conf):
                         'ansible to run there.'),
         cfg.IntOpt('networks',
                    default=10,
-                   help='Number of networks to be created in Neutron'),
+                   help='Number of networks to be created in Neutron. It '
+                        'only  has effect with "create" action.'),
         cfg.IntOpt('ipv4_subnets',
                    default=1,
                    help='Number of IPv4 subnets to be created in Neutron for '

@@ -11,6 +11,7 @@
 #    under the License.
 
 from concurrent import futures
+import re
 import socket
 import sys
 import yaml
@@ -92,10 +93,12 @@ def clean_all(config):
                                        region_name=config.region_name)
     os_vif = os_vif_client.OSVifClient()
     all_networks = client.get_networks()
-    expected_network_names = [get_network_name(net, hostname) for
-                              net in range(config.networks)]
-    networks_to_clean = [network for network in all_networks if
-                         network['name'] in expected_network_names]
+    networks_to_clean = []
+    expected_network_name_pattern = re.compile(
+        r"network-\d+-host-%s" % hostname)
+    for network in all_networks:
+        if expected_network_name_pattern.match(network['name']):
+            networks_to_clean.append(network)
     workers = config.concurrency or config.networks
     with futures.ThreadPoolExecutor(max_workers=workers) as executor:
         [executor.submit(
