@@ -25,6 +25,7 @@ class OSClient(object):
         self._os_conn = None
         self.cloud = cloud
         self.region_name = region_name
+        self._project_id = None
 
     @property
     def os_conn(self):
@@ -32,6 +33,12 @@ class OSClient(object):
             self._os_conn = openstack.connect(cloud=self.cloud,
                                               region_name=self.region_name)
         return self._os_conn
+
+    @property
+    def project_id(self):
+        if self._project_id is None:
+            self._project_id = self.os_conn.session.get_project_id()
+        return self._project_id
 
     def get_agents(self, binary_name=None):
         try:
@@ -121,3 +128,11 @@ class OSClient(object):
                 continue
             subnets[subnet['id']] = subnet
         return subnets
+
+    def set_project_quota(self, **resources):
+        try:
+            quota = list(
+                self.os_conn.network.quotas(project_id=self.project_id))[0]
+            self.os_conn.network.update_quota(quota, **resources)
+        except Exception as e:
+            LOG.warning("Failed to set quota. Error: %s", e)

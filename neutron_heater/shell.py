@@ -144,10 +144,17 @@ def discover_hosts(config):
     write_inventory_file(hosts, config.inventory_file_name)
 
 
+def set_unlimited_quotas(config):
+    client = openstack_client.OSClient(cloud=config.cloud_name,
+                                       region_name=config.region_name)
+    client.set_project_quota(networks=-1, subnets=-1, ports=-1)
+
+
 def main(argv=sys.argv[1:]):
     config = conf.get_config(argv)
     if config.action == constants.CREATE:
         LOG.info("Starting resource creation")
+        set_unlimited_quotas(config)
         create_resources(config)
         LOG.info("Resources created")
     elif config.action == constants.CLEAN:
