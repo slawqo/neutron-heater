@@ -1,5 +1,0 @@
----
-neutron_heater_repo: "https://github.com/slawqo/neutron-heater"
-neutron_heater_version: "main"
-neutron_heater_dest_path: "/opt/stack/neutron-heater"
-neutron_heater_venv_path: "{{ neutron_heater_dest_path }}/.venv"

@@ -1,12 +1,25 @@
 ---
 # tasks file for heater_run
-- name: Run neutron-heater to create resources in neutron-heater
-  ansible.builtin.command:
-    cmd: "{{ neutron_heater_venv_path}}/bin/neutron-heater create \
+- name: Ensure podman is installed
+  ansible.builtin.package:
+    name: podman
+    state: present
+
+- name: Run neutron-heater container to create resources
+  containers.podman.podman_container:
+    image: "{{ neutron_heater_image }}"
+    network: host
+    privileged: true
+    detatch: false
+    recreate: true
+    volumes:
+      - "{{ ansible_env.HOME }}/.config/openstack/"
+      - "/etc/openstack"
+    command: "create \
       --cloud-name {{ neutron_heater_cloud_name }} \
-      --region-name {{ neutron_heater_region_name }} \
       --concurrency {{ neutron_heater_concurrency }} \
       --networks {{ neutron_heater_networks }} \
       --ports {{ neutron_heater_ports }} \
       --ipv4_subnets {{ neutron_heater_ipv4_subnets }} \
-      --ipv6_subnets {{ neutron_heater_ipv6_subnets }}"
+      --ipv6_subnets {{ neutron_heater_ipv6_subnets }} \
+      --insecure"
