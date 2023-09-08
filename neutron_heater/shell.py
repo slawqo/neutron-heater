@@ -136,7 +136,7 @@ def write_yaml_file(hosts, filename):
 
 def write_ini_file(hosts, filename):
     with open(filename, "w") as f:
-        f.writelines(hosts)
+        f.writelines("%s\n" % host for host in hosts)
 
 
 def discover_hosts(config):
