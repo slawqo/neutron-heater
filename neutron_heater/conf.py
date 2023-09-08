@@ -54,9 +54,14 @@ def register_config_options(conf):
                    help="Cloud's name to be used. It has to be defined in "
                         "the clouds.yaml file."),
         cfg.StrOpt('region-name',
-                   default='RegionOne',
+                   default=None,
                    dest='region_name',
                    help="Cloud's region name."),
+        cfg.BoolOpt('insecure',
+                    default=False,
+                    help="If set, SSL certificates will not be "
+                         "verified and self signed certificates will be "
+                         "accepted."),
         cfg.IntOpt('concurrency',
                    default=0,
                    help='Number of threads in which networks and resources '

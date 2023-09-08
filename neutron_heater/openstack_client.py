@@ -21,17 +21,16 @@ LOG = logging.getLogger(__name__)
 
 class OSClient(object):
 
-    def __init__(self, cloud, region_name):
+    def __init__(self, cloud, **kwargs):
         self._os_conn = None
         self.cloud = cloud
-        self.region_name = region_name
+        self.kwargs = kwargs
         self._project_id = None
 
     @property
     def os_conn(self):
         if self._os_conn is None:
-            self._os_conn = openstack.connect(cloud=self.cloud,
-                                              region_name=self.region_name)
+            self._os_conn = openstack.connect(cloud=self.cloud, **self.kwargs)
         return self._os_conn
 
     @property

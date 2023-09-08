@@ -64,10 +64,18 @@ def create_network_with_ports(net_number, ipv4_subnets, ipv6_subnets, ports,
     return True
 
 
+def _get_osclient(config):
+    kwargs = {'cloud': config.cloud_name}
+    if config.region_name is not None:
+        kwargs['region_name'] = config.region_name
+    if config.insecure is True:
+        kwargs['verify'] = False
+    return openstack_client.OSClient(**kwargs)
+
+
 def create_resources(config):
     hostname = socket.gethostname()
-    client = openstack_client.OSClient(cloud=config.cloud_name,
-                                       region_name=config.region_name)
+    client = _get_osclient(config)
     os_vif = os_vif_client.OSVifClient()
 
     workers = config.concurrency or config.networks
@@ -89,8 +97,7 @@ def clean_network_with_ports(network, os_client, os_vif):
 
 def clean_all(config):
     hostname = socket.gethostname()
-    client = openstack_client.OSClient(cloud=config.cloud_name,
-                                       region_name=config.region_name)
+    client = _get_osclient(config)
     os_vif = os_vif_client.OSVifClient()
     all_networks = client.get_networks()
     networks_to_clean = []
@@ -133,8 +140,7 @@ def write_ini_file(hosts, filename):
 
 
 def discover_hosts(config):
-    client = openstack_client.OSClient(cloud=config.cloud_name,
-                                       region_name=config.region_name)
+    client = _get_osclient(config)
     agents = client.get_agents(config.l2_agent_name)
     if not agents:
         sys.exit(constants.NO_AGENTS_FOUND)
@@ -145,8 +151,7 @@ def discover_hosts(config):
 
 
 def set_unlimited_quotas(config):
-    client = openstack_client.OSClient(cloud=config.cloud_name,
-                                       region_name=config.region_name)
+    client = _get_osclient(config)
     client.set_project_quota(networks=-1, subnets=-1, ports=-1)
 
 
