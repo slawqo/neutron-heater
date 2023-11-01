@@ -9,6 +9,7 @@
 - name: Run neutron-heater container to create resources
   become: true
   containers.podman.podman_container:
+    name: neutron-heater
     image: "{{ neutron_heater_image }}"
     network: host
     privileged: true
