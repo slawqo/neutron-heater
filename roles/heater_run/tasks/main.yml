@@ -1,11 +1,13 @@
 ---
 # tasks file for heater_run
 - name: Ensure podman is installed
+  become: true
   ansible.builtin.package:
     name: podman
     state: present
 
 - name: Run neutron-heater container to create resources
+  become: true
   containers.podman.podman_container:
     image: "{{ neutron_heater_image }}"
     network: host
