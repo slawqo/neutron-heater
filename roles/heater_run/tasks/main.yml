@@ -13,7 +13,7 @@
     image: "{{ neutron_heater_image }}"
     network: host
     privileged: true
-    detatch: false
+    detach: false
     recreate: true
     volumes:
       - "{{ ansible_env.HOME }}/.config/openstack/"
