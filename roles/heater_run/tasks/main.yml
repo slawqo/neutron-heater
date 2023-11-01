@@ -16,8 +16,7 @@
     detach: false
     recreate: true
     volumes:
-      - "{{ ansible_env.HOME }}/.config/openstack/"
-      - "/root/.config/openstack"
+      - "{{ ansible_env.HOME }}/.config/openstack/:/root/.config/openstack"
     command: "create \
       --cloud-name {{ neutron_heater_cloud_name }} \
       --concurrency {{ neutron_heater_concurrency }} \
