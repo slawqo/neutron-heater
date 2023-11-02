@@ -130,8 +130,7 @@ class OSClient(object):
 
     def set_project_quota(self, **resources):
         try:
-            quota = list(
-                self.os_conn.network.quotas(project_id=self.project_id))[0]
+            quota = self.os_conn.network.get_quota(self.project_id)
             self.os_conn.network.update_quota(quota, **resources)
         except Exception as e:
             LOG.warning("Failed to set quota. Error: %s", e)
