@@ -8,3 +8,5 @@ neutron_heater_networks: 10
 neutron_heater_ports: 25
 neutron_heater_ipv4_subnets: 1
 neutron_heater_ipv6_subnets: 1
+
+clouds_yaml_path: "/home/stack/.config/openstack/clouds.yaml"

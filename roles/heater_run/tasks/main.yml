@@ -1,10 +1,19 @@
 ---
-# tasks file for heater_run
 - name: Ensure podman is installed
   become: true
   ansible.builtin.package:
     name: podman
     state: present
+
+- name: "Ensure {{ ansible_env.HOME }}/.config/openstack directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/openstack"
+    state: directory
+
+- name: Copy clouds.yml file
+  ansible.builtin.copy:
+    src: "{{ clouds_yaml_path }}"
+    dest: "{{ ansible_env.HOME }}/.config/openstack/clouds.yaml"
 
 - name: Run neutron-heater container to create resources
   become: true
