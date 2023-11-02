@@ -18,4 +18,6 @@ WORKDIR ${NEUTRON_HEATER_DIR}
 RUN ${PYTHON} setup.py install
 RUN ${PYTHON} -m pip install -r requirements.txt
 
+RUN ln -s /usr/local/bin/privsep-helper /usr/bin/privsep-helper
+
 ENTRYPOINT ["neutron-heater"]
