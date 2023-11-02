@@ -9,3 +9,4 @@ openstacksdk
 oslo_config
 oslo_log
 oslo_utils
+oslo_privsep
