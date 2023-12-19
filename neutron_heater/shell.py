@@ -57,7 +57,8 @@ def create_network_with_ports(net_number, ipv4_subnets, ipv6_subnets, ports,
     if subnets:
         # Only if some subnets were created creating ports makes any sense
         for port in range(ports):
-            port_name = "port-%s-host-%s" % (port, hostname)
+            port_name = "port-%s-host-%s-network-%s" % (
+                port, hostname, network['id'])
             port = os_client.create_port(network['id'], port_name, hostname)
             if port:
                 os_vif.plug_port(port, subnets)
