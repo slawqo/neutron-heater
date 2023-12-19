@@ -1,0 +1,8 @@
+---
+# defaults file for heater_clean
+neutron_heater_image: "quay.io/skaplons/neutron-heater:latest"
+neutron_heater_venv_path: "/opt/stack/neutron-heater/.venv"
+neutron_heater_cloud_name: "devstack-admin"
+neutron_heater_concurrency: 0
+
+clouds_yaml_path: "/home/stack/.config/openstack/clouds.yaml"

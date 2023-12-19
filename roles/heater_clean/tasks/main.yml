@@ -1,0 +1,32 @@
+---
+- name: Ensure podman is installed
+  become: true
+  ansible.builtin.package:
+    name: podman
+    state: present
+
+- name: "Ensure {{ ansible_env.HOME }}/.config/openstack directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/openstack"
+    state: directory
+
+- name: Copy clouds.yml file
+  ansible.builtin.copy:
+    src: "{{ clouds_yaml_path }}"
+    dest: "{{ ansible_env.HOME }}/.config/openstack/clouds.yaml"
+
+- name: Run neutron-heater container to clean resources
+  become: true
+  containers.podman.podman_container:
+    name: neutron-heater
+    image: "{{ neutron_heater_image }}"
+    network: host
+    privileged: true
+    detach: false
+    recreate: true
+    volumes:
+      - "{{ ansible_env.HOME }}/.config/openstack/:/root/.config/openstack"
+    command: "clean \
+      --cloud-name {{ neutron_heater_cloud_name }} \
+      --concurrency {{ neutron_heater_concurrency }} \
+      --insecure"
