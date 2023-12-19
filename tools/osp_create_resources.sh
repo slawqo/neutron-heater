@@ -44,6 +44,7 @@ fi
 
 /usr/bin/ansible-playbook \
     -i ${INVENTORY_FILE} ${SCRIPT_DIR}/../playbooks/run.yaml \
+    -e neutron_heater_image=${NEUTRON_HEATER_IMAGE} \
     -e neutron_heater_cloud_name=${CLOUD_NAME} \
     -e neutron_heater_concurrency=${CONCURRENCY} \
     -e neutron_heater_networks=${NETWORKS} \
