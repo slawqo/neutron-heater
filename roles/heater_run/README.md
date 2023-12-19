@@ -1,7 +1,7 @@
-Heater_deploy
+Heater_run
 =============
 
-This role runs neutron-heater installed in the the specified virtual environment to create resources in neutron
+This role runs podman container with neutron-heater to create Neutron resources in the cloud
 
 Role Variables
 --------------
@@ -19,8 +19,6 @@ Role Variables
 
 Example Playbook
 ----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
     - hosts: compute_nodes
       roles:
