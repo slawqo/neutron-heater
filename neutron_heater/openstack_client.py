@@ -39,10 +39,14 @@ class OSClient(object):
             self._project_id = self.os_conn.session.get_project_id()
         return self._project_id
 
-    def get_agents(self, binary_name=None):
+    def get_agents(self, binary_name=None, only_alive=True):
         try:
-            agents = [agent for agent in self.os_conn.network.agents()
-                      if agent.get('is_alive') is True]
+            all_agents = self.os_conn.network.agents()
+            if only_alive:
+                agents = [agent for agent in all_agents
+                          if agent.get('is_alive') is True]
+            else:
+                agents = list(all_agents)
         except Exception as e:
             LOG.error("Failed to get list of Neutron agents. Error: %s", e)
             return

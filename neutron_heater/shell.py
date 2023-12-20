@@ -74,8 +74,22 @@ def _get_osclient(config):
     return openstack_client.OSClient(**kwargs)
 
 
-def create_resources(config):
+def get_node_name(config):
+    client = _get_osclient(config)
+    agents = client.get_agents(config.l2_agent_name,
+                               only_alive=False)
     hostname = socket.gethostname()
+    LOG.info('Looking for a name of the node with hostname: %s', hostname)
+    for agent in agents:
+        if hostname in agent['host']:
+            return agent['host']
+    LOG.warning("Hostname '%s' not found in any of agents. It will be used "
+                "as is but may cause other problems.", hostname)
+    return hostname
+
+
+def create_resources(config):
+    hostname = get_node_name(config)
     client = _get_osclient(config)
     os_vif = os_vif_client.OSVifClient()
 
@@ -97,7 +111,7 @@ def clean_network_with_ports(network, os_client, os_vif):
 
 
 def clean_all(config):
-    hostname = socket.gethostname()
+    hostname = get_node_name(config)
     client = _get_osclient(config)
     os_vif = os_vif_client.OSVifClient()
     all_networks = client.get_networks()
