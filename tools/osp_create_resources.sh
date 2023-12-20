@@ -12,14 +12,14 @@ INVENTORY_FILE=${INVENTORY_FILE:-"${SCRIPT_DIR}/../hosts"}
 L2_AGENT_NAME=${L2_AGENT_NAME:-"ovn-controller"}
 
 # Number of resources created by the neutron-heater script run ON EACH node
-# So if there is 3 x compute node and 3 x controller node with L2 agent there will
+# So if there is 2 x compute node and 3 x controller node with L2 agent there will
 # be in total:
-# * 6 x $NETWORKS created in neutron
+# * 5 x $NETWORKS created in neutron
 # * $PORTS created in each NETWORK
-# With default values it will create in total: 60 NETWORKS and 1500 PORTS
+# With default values it will create in total: 100 NETWORKS and 5000 PORTS
 CONCURRENCY=${CONCURRENCY:-0}
-NETWORKS=${NETWORKS:-10}
-PORTS=${PORTS:-25}
+NETWORKS=${NETWORKS:-20}
+PORTS=${PORTS:-50}
 IPV4_SUBNETS=${IPV4_SUBNETS:-1}
 IPV6_SUBNETS=${IPV6_SUBNETS:-1}
 
