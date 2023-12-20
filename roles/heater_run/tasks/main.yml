@@ -1,20 +1,4 @@
 ---
-- name: Ensure podman is installed
-  become: true
-  ansible.builtin.package:
-    name: podman
-    state: present
-
-- name: "Ensure {{ ansible_env.HOME }}/.config/openstack directory exists"
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/openstack"
-    state: directory
-
-- name: Copy clouds.yml file
-  ansible.builtin.copy:
-    src: "{{ clouds_yaml_path }}"
-    dest: "{{ ansible_env.HOME }}/.config/openstack/clouds.yaml"
-
 - name: Run neutron-heater container to create resources
   become: true
   containers.podman.podman_container:
@@ -25,7 +9,9 @@
     detach: false
     recreate: true
     volumes:
+      - "/var/run/openvswitch:/var/run/openvswitch"
       - "{{ ansible_env.HOME }}/.config/openstack/:/root/.config/openstack"
+      - "/tmp/neutron_heater.conf:/neutron_heater.conf"
     command: "create \
       --cloud-name {{ neutron_heater_cloud_name }} \
       --concurrency {{ neutron_heater_concurrency }} \
@@ -33,4 +19,5 @@
       --ports {{ neutron_heater_ports }} \
       --ipv4_subnets {{ neutron_heater_ipv4_subnets }} \
       --ipv6_subnets {{ neutron_heater_ipv6_subnets }} \
-      --insecure"
+      --insecure \
+      --config-file /neutron_heater.conf"
