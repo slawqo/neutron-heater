@@ -16,9 +16,9 @@ L2_AGENT_NAME=${L2_AGENT_NAME:-"ovn-controller"}
 # be in total:
 # * 5 x $NETWORKS created in neutron
 # * $PORTS created in each NETWORK
-# With default values it will create in total: 100 NETWORKS and 5000 PORTS
+# With default values it will create in total: 50 NETWORKS and 2500 PORTS
 CONCURRENCY=${CONCURRENCY:-0}
-NETWORKS=${NETWORKS:-20}
+NETWORKS=${NETWORKS:-10}
 PORTS=${PORTS:-50}
 IPV4_SUBNETS=${IPV4_SUBNETS:-1}
 IPV6_SUBNETS=${IPV6_SUBNETS:-1}
