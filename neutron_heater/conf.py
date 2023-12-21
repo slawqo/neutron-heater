@@ -16,9 +16,6 @@ from oslo_log import log as logging
 from neutron_heater import constants
 
 
-MAX_WORKERS = 10
-
-
 def register_config_options(conf):
     options = [
         cfg.StrOpt('action',
@@ -73,8 +70,8 @@ def register_config_options(conf):
                         'and ports which should be created per network. '
                         'Default value is "0" which means it will be '
                         'calculated automatically based on the "networks" '
-                        'value but it will not be more than %s workers.' %
-                        MAX_WORKERS),
+                        'value but it will not be more workers than '
+                        'half of the CPUs in the system.'),
         cfg.StrOpt('l2_agent_name',
                    default='ovn-controller',
                    help="Name of the L2 agent's binary. It's used only with "

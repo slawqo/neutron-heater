@@ -11,6 +11,7 @@
 #    under the License.
 
 from concurrent import futures
+import os
 import re
 import socket
 import sys
@@ -89,7 +90,8 @@ def get_node_name(config):
 
 
 def get_number_of_workers(config):
-    return min(config.concurrency or config.networks, conf.MAX_WORKERS)
+    return min(config.concurrency or config.networks,
+               int(os.cpu_count() / 2))
 
 
 def create_resources(config):
