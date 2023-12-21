@@ -88,12 +88,16 @@ def get_node_name(config):
     return hostname
 
 
+def get_number_of_workers(config):
+    return min(config.concurrency or config.networks, conf.MAX_WORKERS)
+
+
 def create_resources(config):
     hostname = get_node_name(config)
     client = _get_osclient(config)
     os_vif = os_vif_client.OSVifClient()
 
-    workers = config.concurrency or config.networks
+    workers = get_number_of_workers(config)
     with futures.ThreadPoolExecutor(max_workers=workers) as executor:
         [executor.submit(
             create_network_with_ports,
@@ -121,7 +125,7 @@ def clean_all(config):
     for network in all_networks:
         if expected_network_name_pattern.match(network['name']):
             networks_to_clean.append(network)
-    workers = config.concurrency or config.networks
+    workers = get_number_of_workers(config)
     with futures.ThreadPoolExecutor(max_workers=workers) as executor:
         [executor.submit(
             clean_network_with_ports, network, client, os_vif) for
