@@ -22,7 +22,6 @@ sys.path.insert(0, os.path.abspath('../..'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'openstackdocstheme',
     #'sphinx.ext.intersphinx',
 ]
 
@@ -38,12 +37,12 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'neutron-heater'
-copyright = '2022, OpenStack Developers'
+copyright = '2023, Slawek Kaplonski'
 
 # openstackdocstheme options
-openstackdocs_repo_name = 'x/neutron-heater'
-openstackdocs_bug_project = 'replace with the name of the project on Launchpad or the ID from Storyboard'
-openstackdocs_bug_tag = ''
+openstackdocs_repo_name = 'https://github.com/slawqo/neutron-heater'
+openstackdocs_bug_project = 'neutron-heater'
+openstackdocs_bug_tag = 'doc'
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
@@ -62,7 +61,11 @@ pygments_style = 'native'
 # html_theme_path = ["."]
 # html_theme = '_theme'
 # html_static_path = ['static']
-html_theme = 'openstackdocs'
+try:
+    import sphinx_rtd_theme
+    html_theme = "sphinx_rtd_theme"
+except ModuleNotFoundError:
+    html_theme = 'alabaster'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%sdoc' % project
